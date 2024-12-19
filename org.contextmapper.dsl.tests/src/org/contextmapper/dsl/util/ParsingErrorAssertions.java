@@ -15,7 +15,8 @@
  */
 package org.contextmapper.dsl.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Collectors;
 
@@ -38,6 +39,11 @@ public class ParsingErrorAssertions {
 	public static void assertThatNoValidationErrorsOccurred(EObject parsingResultObject) {
 		ValidationTestHelper helper = new ValidationTestHelper();
 		helper.assertNoErrors(parsingResultObject);
+	}
+
+	public static void assertThatNoValidationWarningsOccurred(EObject parsingResultObject) {
+		ValidationTestHelper helper = new ValidationTestHelper();
+		helper.assertNoIssues(parsingResultObject);
 	}
 
 }

@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import org.contextmapper.dsl.AbstractCMLInputFileTest;
 import org.contextmapper.dsl.contextMappingDSL.ContextMappingModel;
+import org.contextmapper.dsl.validation.DomainValidator;
+import org.eclipse.xtext.testing.validation.ValidationTestHelper;
 import org.junit.jupiter.api.Test;
 
 public class CMLImportResolverTest extends AbstractCMLInputFileTest {
@@ -66,6 +68,25 @@ public class CMLImportResolverTest extends AbstractCMLInputFileTest {
 
 		// then
 		assertTrue(importedResources.isEmpty());
+	}
+	
+	/**
+	 * This checks only absence of ERROR: 'Couldn't resolve reference to
+	 * SimpleDomainObject 'TestEntity'. The absence of the of the 'unreachable
+	 * reference' warning from {@link DomainValidator} is not checked herein.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void doNotCreateUnresolvedEntityErrorOnLoadingImportFile() throws IOException {
+		// given
+		var importCmlResource = getResourceCopyOfTestCML("domain-object-validator-test-bounded-context.cml");
+		var resourceSet = getResourceSetOfTestCMLFiles("domain-object-validator-test-context-map.cml");
+		// when
+		var mainModel = importCmlResource.getContextMappingModel();
+		// then
+		var validationTestHelper = new ValidationTestHelper();
+		validationTestHelper.assertNoErrors(mainModel);
 	}
 
 	@Override

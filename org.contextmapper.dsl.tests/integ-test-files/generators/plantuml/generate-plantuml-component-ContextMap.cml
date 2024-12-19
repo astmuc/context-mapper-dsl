@@ -1,0 +1,23 @@
+import "generate-plantuml-component-BoundedContexts.cml"
+
+ContextMap InsuranceContextMap {
+  contains CustomerManagementContext
+  contains PolicyManagementContext
+
+  PolicyManagementContext [D,CF]<-[U,OHS,PL] CustomerManagementContext {
+    implementationTechnology = "RESTfulHTTP"
+    exposedAggregates = Customers
+  }
+}
+
+Domain InsuranceDomain {
+	// Current focus on Wafer stage
+	Subdomain CustomerManagementDomain {
+		type = GENERIC_SUBDOMAIN
+		domainVisionStatement = "Subdomain for customer."
+	}
+	Subdomain PolicyManagementDomain {
+		type = GENERIC_SUBDOMAIN
+		domainVisionStatement = "Subdomain for policy."
+	}
+}

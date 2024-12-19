@@ -18,6 +18,7 @@ package org.contextmapper.dsl
 import com.google.inject.Inject
 import org.contextmapper.dsl.contextMappingDSL.ContextMappingModel
 import org.contextmapper.dsl.tests.ContextMappingDSLInjectorProvider
+import org.contextmapper.dsl.validation.DomainObjectValidator
 import org.contextmapper.tactic.dsl.tacticdsl.TacticdslPackage
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.testing.InjectWith
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.^extension.ExtendWith
 
 import static org.contextmapper.dsl.util.ParsingErrorAssertions.*
 import static org.contextmapper.dsl.validation.ValidationMessages.*
-import org.contextmapper.dsl.validation.DomainObjectValidator
 
 @ExtendWith(InjectionExtension)
 @InjectWith(ContextMappingDSLInjectorProvider)
@@ -265,7 +265,7 @@ class DomainObjectValidatorTest {
 		val ContextMappingModel result = parseHelper.parse(dslSnippet);
 		// then
 		assertThatNoParsingErrorsOccurred(result);
-		assertThatNoValidationErrorsOccurred(result);
+		assertThatNoValidationWarningsOccurred(result);
 	}
 	
 	@Test
@@ -294,7 +294,7 @@ class DomainObjectValidatorTest {
 		val ContextMappingModel result = parseHelper.parse(dslSnippet);
 		// then
 		assertThatNoParsingErrorsOccurred(result);
-		assertThatNoValidationErrorsOccurred(result);
+		assertThatNoValidationWarningsOccurred(result);
 	}
 	
 	@Test
@@ -323,7 +323,7 @@ class DomainObjectValidatorTest {
 		val ContextMappingModel result = parseHelper.parse(dslSnippet);
 		// then
 		assertThatNoParsingErrorsOccurred(result);
-		assertThatNoValidationErrorsOccurred(result);
+		assertThatNoValidationWarningsOccurred(result);
 	}
 
 }

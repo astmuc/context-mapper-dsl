@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import org.contextmapper.dsl.cml.CMLModelObjectsResolvingHelper;
 import org.contextmapper.dsl.cml.CMLTypeChecker;
 import org.contextmapper.dsl.contextMappingDSL.Aggregate;
+import org.contextmapper.dsl.contextMappingDSL.BoundedContext;
+import org.contextmapper.dsl.contextMappingDSL.ContextMap;
 import org.contextmapper.dsl.contextMappingDSL.ContextMappingModel;
 import org.contextmapper.dsl.contextMappingDSL.Subdomain;
 import org.contextmapper.tactic.dsl.tacticdsl.Attribute;
@@ -35,18 +37,22 @@ import org.contextmapper.tactic.dsl.tacticdsl.Entity;
 import org.contextmapper.tactic.dsl.tacticdsl.Reference;
 import org.contextmapper.tactic.dsl.tacticdsl.SimpleDomainObject;
 import org.contextmapper.tactic.dsl.tacticdsl.TacticdslPackage;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.validation.AbstractDeclarativeValidator;
 import org.eclipse.xtext.validation.Check;
 import org.eclipse.xtext.validation.EValidatorRegistrar;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 
 public class DomainObjectValidator extends AbstractDeclarativeValidator {
 
 	public static final String ID_IS_PRIMITIVE_CODE = "primitive-id-detected";
 
 	private CMLTypeChecker typeChecker;
+	@Inject
+	ProjectAwareVisibleContextMapsProvider visibleContextMapsProvider;
 
 	public DomainObjectValidator() {
 		this.typeChecker = new CMLTypeChecker();
@@ -94,15 +100,27 @@ public class DomainObjectValidator extends AbstractDeclarativeValidator {
 
 	@Check
 	public void checkForInterBCReferencesThatRequireRelationship(Reference reference) {
-		if (reference.getDomainObjectType() == null || !(EcoreUtil2.getRootContainer(reference) instanceof ContextMappingModel))
+		checkForInterBCReferencesThatRequireRelationship(reference, visibleContextMapsProvider);
+	}
+	
+	public void checkForInterBCReferencesThatRequireRelationship(Reference reference,
+			ProjectAwareVisibleContextMapsProvider visibleContextMapsProvider) {
+		EObject rootContainer = EcoreUtil2.getRootContainer(reference);
+		if (reference.getDomainObjectType() == null || !(rootContainer instanceof ContextMappingModel))
 			return;
-		CMLModelObjectsResolvingHelper helper = new CMLModelObjectsResolvingHelper((ContextMappingModel) EcoreUtil2.getRootContainer(reference));
+
+		Set<ContextMap> visibleContextMaps = visibleContextMapsProvider.get(reference);
+		CMLModelObjectsResolvingHelper helper = new CMLModelObjectsResolvingHelper((ContextMappingModel) rootContainer);
 		SimpleDomainObject containingObject = (SimpleDomainObject) reference.eContainer();
 		Set<String> domainObjectScope = Sets.newHashSet();
-		for (Aggregate aggregate : helper.resolveAllAccessibleAggregates(helper.resolveBoundedContext(containingObject)))
-			domainObjectScope.addAll(EcoreUtil2.eAllOfType(aggregate, SimpleDomainObject.class).stream().map(o -> o.getName()).collect(Collectors.toSet()));
+		BoundedContext boundedContext = helper.resolveBoundedContext(containingObject);
+		for (Aggregate aggregate : helper.resolveAllAccessibleAggregates(boundedContext, visibleContextMaps))
+			domainObjectScope.addAll(EcoreUtil2.eAllOfType(aggregate, SimpleDomainObject.class).stream()
+					.map(o -> o.getName()).collect(Collectors.toSet()));
+
 		if (!domainObjectScope.contains(reference.getDomainObjectType().getName()))
-			warning(String.format(REFERENCE_TO_NOT_REACHABLE_TYPE, reference.getDomainObjectType().getName()), reference, TacticdslPackage.Literals.REFERENCE__DOMAIN_OBJECT_TYPE);
+			warning(String.format(REFERENCE_TO_NOT_REACHABLE_TYPE, reference.getDomainObjectType().getName()),
+					reference, TacticdslPackage.Literals.REFERENCE__DOMAIN_OBJECT_TYPE);
 	}
 
 }

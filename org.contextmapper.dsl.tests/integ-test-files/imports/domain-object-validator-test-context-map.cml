@@ -1,0 +1,16 @@
+ContextMap TestContextMap {
+	contains ContextA100, ContextB100, ContextC100
+	
+	ContextA100 -> ContextC100 
+}
+BoundedContext ContextA100 {
+	Aggregate TestAggregateA100 {
+		Entity TestEntityA101
+	}
+}
+BoundedContext ContextB100 {
+	Aggregate TestAggregateB100 {
+		Entity UnusedEntityB101
+	}
+}
+import "domain-object-validator-test-bounded-context.cml"

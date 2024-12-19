@@ -279,6 +279,24 @@ class PlantUMLGeneratorTest extends AbstractCMLInputFileTest {
 		testEntity.setName(name);
 		return testEntity;
 	}
+	
+	@Test
+	public void canHandleImportedBoundedContexts() throws IOException {
+		// given
+		var cmlResource = getResourceCopyOfTestCML("generate-plantuml-component-ContextMap.cml");
+		var importFile = getCopyOfTestInputFile("generate-plantuml-component-BoundedContexts.cml");
+		// when
+		IFileSystemAccess2Mock filesystem = new IFileSystemAccess2Mock();
+		this.generator.doGenerate(cmlResource, filesystem,new IGeneratorContextMock());
+
+		// then
+		String expectedOutputFilename = "generate-plantuml-component-ContextMap_ContextMap.puml";
+		assertTrue(filesystem.getGeneratedFilesSet()
+				.contains(expectedOutputFilename));		
+		var generatedContent = filesystem.readTextFile(expectedOutputFilename);
+		System.out.println(generatedContent);
+		assertTrue( !generatedContent.toString().contains("null"));
+	}
 
 	@Override
 	protected String getTestFileDirectory() {

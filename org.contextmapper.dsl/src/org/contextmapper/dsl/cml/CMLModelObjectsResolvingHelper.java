@@ -15,6 +15,7 @@
  */
 package org.contextmapper.dsl.cml;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -113,13 +114,22 @@ public class CMLModelObjectsResolvingHelper {
 		return null;
 	}
 
-	public List<Aggregate> resolveAllAccessibleAggregates(BoundedContext bc) {
+	/**
+	 * Follows all relations in given context-maps to find aggregates offering to
+	 * the given bounded-context. This list and all aggregates of the given
+	 * bounded-context are returned as visible aggregates.
+	 * 
+	 * @param boundedContext   wants to see more aggregates than its own
+	 * @param knownContextMaps candidates for relation scan
+	 * @return aggregates visible to the given bounded-context
+	 */
+	public List<Aggregate> resolveAllAccessibleAggregates(BoundedContext boundedContext,
+			Collection<ContextMap> knownContextMaps) {
 		List<Aggregate> aggregates = Lists.newLinkedList();
-		aggregates.addAll(EcoreUtil2.eAllOfType(bc, Aggregate.class));
-		ContextMap contextMap = getContextMap(bc);
-		if (contextMap != null) {
+		aggregates.addAll(EcoreUtil2.eAllOfType(boundedContext, Aggregate.class));
+		for (var contextMap : knownContextMaps) {
 			for (Relationship rel : contextMap.getRelationships()) {
-				if (isBCDownstreamInRelationship(rel, bc))
+				if (isBCDownstreamInRelationship(rel, boundedContext))
 					aggregates.addAll(getExposedAggregates(rel));
 			}
 		}

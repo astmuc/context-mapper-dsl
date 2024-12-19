@@ -1,3 +1,5 @@
+
+
 dependencies {
 	implementation project(':context-mapper-dsl')
 	implementation group: 'org.contextmapper', name: 'context-map-generator', version: '1.2.1'
@@ -9,6 +11,7 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.5.1'
 	testImplementation "org.eclipse.xtext:org.eclipse.xtext.testing:${xtextVersion}"
 	testImplementation "org.eclipse.xtext:org.eclipse.xtext.xbase.testing:${xtextVersion}"
+    testImplementation "org.eclipse.xtext:org.eclipse.xtext.builder:2.10.0" // found no m2 repo with actual version, the tests are running with version also
 }
 test {
 	useJUnitPlatform()

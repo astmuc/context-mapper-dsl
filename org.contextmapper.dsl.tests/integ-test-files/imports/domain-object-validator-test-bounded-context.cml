@@ -1,0 +1,7 @@
+BoundedContext ContextC100 {
+	Aggregate TestAggregateC100 {
+		Entity TestEntityC301 {
+			- @TestEntityA101 ref
+		}
+	}
+}
