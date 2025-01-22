@@ -32,6 +32,7 @@ import org.contextmapper.tactic.dsl.tacticdsl.ServiceOperation
 import org.contextmapper.tactic.dsl.tacticdsl.TacticdslPackage
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.contextmapper.tactic.dsl.tacticdsl.DataTransferObject
 
 class TacticDDDLanguageFormatter extends AbstractFormatter2 {
 
@@ -126,6 +127,28 @@ class TacticDDDLanguageFormatter extends AbstractFormatter2 {
 		for (operation : trait.operations) {
 			operation.format
 			operation.prepend[newLine]
+		}
+	}
+
+	def dispatch void format(DataTransferObject dto, extension IFormattableDocument document) {
+		val EClass clazz = TacticdslPackage.eINSTANCE.getTrait()
+		val EStructuralFeature docFeature = clazz.getEStructuralFeature(TacticdslPackage.DATA_TRANSFER_OBJECT__DOC)
+		dto.regionFor.feature(docFeature).append[newLine]
+
+		interior(
+			dto.regionFor.keyword('{').prepend[oneSpace].append[newLine],
+			dto.regionFor.keyword('}').prepend[newLine]
+		)[indent]
+
+		dto.regionFor.keyword('hint').prepend[newLine]
+
+		for (attribute : dto.attributes) {
+			attribute.format
+			attribute.prepend[newLine]
+		}
+		for (reference : dto.references) {
+			reference.format
+			reference.prepend[newLine]
 		}
 	}
 

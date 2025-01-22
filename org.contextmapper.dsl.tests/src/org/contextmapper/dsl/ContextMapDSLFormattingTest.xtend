@@ -33,11 +33,36 @@ import org.contextmapper.tactic.dsl.tacticdsl.TacticdslFactory
 
 @ExtendWith(InjectionExtension)
 @InjectWith(ContextMappingDSLInjectorProvider)
-class ContextMapDSLFormattingTest {
+class ContextMapDSLFormattingTest extends AbstractCMLInputFileTest {
 	@Inject
 	ParseHelper<ContextMappingModel> parseHelper
 	@Inject extension ISerializer
 
+	override String getTestFileDirectory() {
+		"/integ-test-files/imports/";
+	}
+
+	@Test
+	def void formatsMapWithImportsLoadedFromFile() {
+		val input = getOriginalResourceOfTestCML("simple-import-test-unformatted.cml");
+		var model = input.contextMappingModel		
+		val expectedResult = '''
+			import "./other-contexts.cml"
+			ContextMap testMap {
+			}
+			
+			BoundedContext context1 {
+				Aggregate aggregate1 {
+					Entity Entity1
+				}
+			}
+			
+			BoundedContext context2
+'''
+		
+		assertEquals(expectedResult, model.serialize(SaveOptions.newBuilder.format().getOptions()))
+	}
+	
 	/**
 	 * Aggregate with entities, traits, basic-types and enums with interspersed comments.
 	 * The traits are used with the 'with' keyword
@@ -45,7 +70,8 @@ class ContextMapDSLFormattingTest {
 	@Test
 	def void formatsMapLoadedFromFile() {
 		val testInput = '''
-			BoundedContext BC1 { Aggregate A1 {  Entity E1 { String prop1 "prop1Comment" String prop2 }
+			BoundedContext BC1 { Aggregate A1 {  Entity E1 { String prop1 "prop2Comment" String prop2 } "dto-comment" DataTransferObject Dto1 { "dtoProp1" int dtoProp1
+			String dtoProp2 }
 			        enum State1 { A, B } Trait T1 {}
 			         "State2Comment" enum State2 { "AA" A, B } "E2Comment" Entity E2 
 			         with@T1 { package = abc validate = "validation" aggregateRoot "E2Comment" 
@@ -65,8 +91,13 @@ class ContextMapDSLFormattingTest {
 				Aggregate A1 {
 					Entity E1 {
 						String prop1
-						"prop1Comment"
+						"prop2Comment"
 						String prop2
+					}
+					"dto-comment"
+					DataTransferObject Dto1 {
+						"dtoProp1" int dtoProp1
+						String dtoProp2
 					}
 					enum State1 {
 						A, B

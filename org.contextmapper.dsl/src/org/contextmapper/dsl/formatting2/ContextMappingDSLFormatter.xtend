@@ -65,6 +65,8 @@ class ContextMappingDSLFormatter extends TacticDDDLanguageFormatter {
 		}
 
 		if (contextMappingModel.map !== null)
+			if ( !contextMappingModel.imports.empty )
+				contextMappingModel.map.prepend[newLine]
 			contextMappingModel.map.format
 
 		for (boundedContext : contextMappingModel.boundedContexts) {

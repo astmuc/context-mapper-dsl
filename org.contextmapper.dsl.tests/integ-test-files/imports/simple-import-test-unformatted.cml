@@ -1,0 +1,4 @@
+import "./other-contexts.cml" ContextMap testMap { } BoundedContext context1 {	Aggregate aggregate1 { 
+		Entity Entity1	}}    
+    
+BoundedContext context2
