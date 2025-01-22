@@ -405,7 +405,7 @@ Attribute :
 
 Reference :
   (doc=STRING)?
-  REF (visibility=Visibility)? ((collectionType=CollectionType"<" (("@")?domainObjectType=[SimpleDomainObject]) ">") | (("@")?domainObjectType=[SimpleDomainObject])) name=ID
+  REF (visibility=Visibility)? ((collectionType=CollectionType("<"("@")?domainObjectType=[SimpleDomainObject]">")) | (("@")?domainObjectType=[SimpleDomainObject])) name=ID
     ((key?="key")? &
      ((notChangeable?=NOT "changeable") | ("changeable"))? &
      ((required?="required") | (NOT "required"))? &
@@ -427,6 +427,21 @@ Reference :
      ((orderColumn?="orderColumn") ("=" orderColumnName=STRING)?)? &
      (oppositeHolder=OppositeHolder)?)
      (ASC associationLabel=STRING)?
+    (";")?;
+
+DtoReference :
+  (doc=STRING)?
+  REF (visibility=Visibility)? ((collectionType=CollectionType("<"("@")?domainObjectType=[SimpleDomainObject]">")) | (("@")?domainObjectType=[SimpleDomainObject])) name=ID
+    ((key?="key")? &
+     ((notChangeable?=NOT "changeable") | ("changeable"))? &
+     ((required?="required") | (NOT "required"))? &
+     (((nullable?="nullable") | (NOT "nullable")) ("=" nullableMessage=STRING)?)? &
+     (transient?="transient")? &
+     ((notEmpty?="notEmpty") ("=" notEmptyMessage=STRING)?)? &
+     ("size" "=" size=STRING)? &
+     ((valid?="valid") ("=" validMessage=STRING)?)? &
+     ("validate" "=" validate=STRING)? &
+     ("hint" "=" hint=STRING)?)
     (";")?;
 
 Association :
@@ -466,20 +481,6 @@ DtoAttribute :
      ("hint" "=" hint=STRING)?
 	) (";")?;
 
-DtoReference :
-  (doc=STRING)?
-  REF (visibility=Visibility)? (collectionType=CollectionType"<")? (("@")?domainObjectType=[SimpleDomainObject]) (">")? name=ID
-    ((key?="key")? &
-     ((notChangeable?=NOT "changeable") | ("changeable"))? &
-     ((required?="required") | (NOT "required"))? &
-     (((nullable?="nullable") | (NOT "nullable")) ("=" nullableMessage=STRING)?)? &
-     (transient?="transient")? &
-     ((notEmpty?="notEmpty") ("=" notEmptyMessage=STRING)?)? &
-     ("size" "=" size=STRING)? &
-     ((valid?="valid") ("=" validMessage=STRING)?)? &
-     ("validate" "=" validate=STRING)? &
-     ("hint" "=" hint=STRING)?
-	) (";")?;
 
 OppositeHolder :
 	OPPOSITE opposite=[Reference];
@@ -546,6 +547,7 @@ Type :
 
 enum CollectionType :
 	None | Set="Set" | List="List" | Bag="Bag" | Collection="Collection";
+	
 
 terminal MAP_COLLECTION_TYPE :
   "Map";
