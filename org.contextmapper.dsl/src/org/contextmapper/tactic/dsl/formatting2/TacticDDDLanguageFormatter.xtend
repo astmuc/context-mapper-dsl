@@ -33,6 +33,8 @@ import org.contextmapper.tactic.dsl.tacticdsl.TacticdslPackage
 import org.eclipse.emf.ecore.EClass
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.contextmapper.tactic.dsl.tacticdsl.DataTransferObject
+import org.contextmapper.tactic.dsl.tacticdsl.DtoAttribute
+import org.contextmapper.tactic.dsl.tacticdsl.DtoReference
 
 class TacticDDDLanguageFormatter extends AbstractFormatter2 {
 
@@ -131,7 +133,7 @@ class TacticDDDLanguageFormatter extends AbstractFormatter2 {
 	}
 
 	def dispatch void format(DataTransferObject dto, extension IFormattableDocument document) {
-		val EClass clazz = TacticdslPackage.eINSTANCE.getTrait()
+		val EClass clazz = TacticdslPackage.eINSTANCE.getDataTransferObject()
 		val EStructuralFeature docFeature = clazz.getEStructuralFeature(TacticdslPackage.DATA_TRANSFER_OBJECT__DOC)
 		dto.regionFor.feature(docFeature).append[newLine]
 
@@ -223,6 +225,24 @@ class TacticDDDLanguageFormatter extends AbstractFormatter2 {
 		reference.regionFor.keyword('>').prepend[noSpace]
 	}
 
+	def dispatch void format(DtoAttribute attribute, extension IFormattableDocument document) {
+		val EClass attributeClass = TacticdslPackage.eINSTANCE.getDtoAttribute()
+		val EStructuralFeature docFeature = attributeClass.getEStructuralFeature(TacticdslPackage.DTO_ATTRIBUTE__DOC)
+
+		attribute.regionFor.feature(docFeature).append[newLine]
+		attribute.regionFor.keyword('<').surround[noSpace]
+		attribute.regionFor.keyword('>').prepend[noSpace]
+	}
+
+	def dispatch void format(DtoReference reference, extension IFormattableDocument document) {
+		val EClass referenceClass = TacticdslPackage.eINSTANCE.getDtoReference()
+		val EStructuralFeature docFeature = referenceClass.getEStructuralFeature(TacticdslPackage.DTO_REFERENCE__DOC)
+
+		reference.regionFor.feature(docFeature).append[newLine]
+		reference.regionFor.keyword('<').surround[noSpace]
+		reference.regionFor.keyword('>').prepend[noSpace]
+	}
+	
 	def dispatch void format(DomainObjectOperation operation, extension IFormattableDocument document) {
 		operation.prepend[newLine]
 

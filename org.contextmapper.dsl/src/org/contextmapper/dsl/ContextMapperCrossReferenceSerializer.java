@@ -1,6 +1,9 @@
 package org.contextmapper.dsl;
 
 import com.google.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.contextmapper.tactic.dsl.tacticdsl.DtoReference;
 import org.contextmapper.tactic.dsl.tacticdsl.Reference;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
@@ -30,9 +33,9 @@ public class ContextMapperCrossReferenceSerializer implements ICrossReferenceSer
 	public String serializeCrossRef(EObject context, CrossReference crossref, EObject target, INode node,
 			ISerializationDiagnostic.Acceptor errorAcceptor) {
 		var serialized = delegate.serializeCrossRef(context, crossref, target, node, errorAcceptor);
-		if (serialized != null && !serialized.startsWith(REF_AT)) {
+		if (serialized != null && !StringUtils.trim(serialized).startsWith(REF_AT)) {
 			if (node == null || !(node.hasPreviousSibling() && node.getPreviousSibling().getText().contains(REF_AT))) {
-				if (context instanceof Reference) {
+				if (context instanceof Reference || context instanceof DtoReference) {
 					serialized = REF_AT + serialized;
 				} else {
 					if (crossref.eContainer() instanceof Assignment) {

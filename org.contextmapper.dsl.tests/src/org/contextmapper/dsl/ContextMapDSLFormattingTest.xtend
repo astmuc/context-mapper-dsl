@@ -30,6 +30,8 @@ import org.eclipse.xtext.serializer.ISerializer
 import org.contextmapper.dsl.standalone.ContextMapperStandaloneSetup
 import org.contextmapper.dsl.contextMappingDSL.ContextMappingDSLFactory
 import org.contextmapper.tactic.dsl.tacticdsl.TacticdslFactory
+import org.contextmapper.tactic.dsl.tacticdsl.CollectionType
+import org.contextmapper.tactic.dsl.tacticdsl.Visibility
 
 @ExtendWith(InjectionExtension)
 @InjectWith(ContextMappingDSLInjectorProvider)
@@ -71,7 +73,7 @@ class ContextMapDSLFormattingTest extends AbstractCMLInputFileTest {
 	def void formatsMapLoadedFromFile() {
 		val testInput = '''
 			BoundedContext BC1 { Aggregate A1 {  Entity E1 { String prop1 "prop2Comment" String prop2 } "dto-comment" DataTransferObject Dto1 { "dtoProp1" int dtoProp1
-			String dtoProp2 }
+			- List<@E2> dtoProp2 }
 			        enum State1 { A, B } Trait T1 {}
 			         "State2Comment" enum State2 { "AA" A, B } "E2Comment" Entity E2 
 			         with@T1 { package = abc validate = "validation" aggregateRoot "E2Comment" 
@@ -96,8 +98,9 @@ class ContextMapDSLFormattingTest extends AbstractCMLInputFileTest {
 					}
 					"dto-comment"
 					DataTransferObject Dto1 {
-						"dtoProp1" int dtoProp1
-						String dtoProp2
+						"dtoProp1"
+						int dtoProp1
+						- List<@E2> dtoProp2
 					}
 					enum State1 {
 						A, B
@@ -210,6 +213,23 @@ class ContextMapDSLFormattingTest extends AbstractCMLInputFileTest {
 		entity3.setExtends(entity1);
 		entity3.setName("E3");
 		aggregate.getDomainObjects().add(entity3);
+		
+		val dto1 = tacticdslFactory.createDataTransferObject();
+		dto1.setName("Dto1")
+		
+		var dtoReference1 = tacticdslFactory.createDtoReference();
+		dtoReference1.setName("dtoRef1");
+		dtoReference1.setDomainObjectType(entity2);
+		dtoReference1.collectionType = CollectionType.LIST;
+		dto1.getReferences().add(dtoReference1);
+
+		val dtoProp1 = tacticdslFactory.createDtoAttribute();
+		dtoProp1.setName("dtoProp1");
+		dtoProp1.setType("String");
+		dtoProp1.doc = "dtoProp1Comment"
+		dto1.attributes.add(dtoProp1)
+
+		aggregate.domainObjects.add(dto1)
 
 		val expectedResult = '''
 			ContextMap TestContextMap {
@@ -228,10 +248,15 @@ class ContextMapDSLFormattingTest extends AbstractCMLInputFileTest {
 						- @E2 ref1
 					}
 					Entity E3 extends @E100
+					DataTransferObject Dto1 {
+						"dtoProp1Comment"
+						String dtoProp1
+						- List<@E2> dtoRef1
+					}
 				}
 			}
 			
-		'''
+		     ''';
 
 		// when, then
 		assertEquals(expectedResult, model.serialize(SaveOptions.newBuilder.format().getOptions()))
