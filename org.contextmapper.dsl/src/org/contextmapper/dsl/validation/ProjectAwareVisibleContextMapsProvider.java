@@ -38,18 +38,20 @@ public class ProjectAwareVisibleContextMapsProvider {
 			Resource anchorResource = anchor.eResource();
 			var index = descriptionsProvider.getResourceDescriptions(anchorResource);
 			for (var desc : index.getAllResourceDescriptions()) {
-				for (var exported : desc.getExportedObjects()) {
-					var exportedBC = exported.getEObjectOrProxy();
-					if (exportedBC.eClass().equals(ContextMappingDSLPackage.eINSTANCE.getBoundedContext())) {
-						if (exportedBC.eIsProxy()) {
-							exportedBC = EcoreUtil.resolve(exportedBC, anchorResource.getResourceSet());
+				for (var exportedObject : desc.getExportedObjects()) {
+					var exported = exportedObject.getEObjectOrProxy();
+					var exportedEclass = exported.eClass();
+					if (exportedEclass.equals(ContextMappingDSLPackage.eINSTANCE.getBoundedContext())
+							|| exportedEclass.equals(ContextMappingDSLPackage.eINSTANCE.getContextMap())) {
+						if (exported.eIsProxy()) {
+							exported = EcoreUtil.resolve(exported, anchorResource.getResourceSet());
 						}
 						ContextMappingModel contextMappingModel = (ContextMappingModel) EcoreUtil2
-								.getRootContainer(exportedBC);
+								.getRootContainer(exported);
 						addContextMap(contextMappingModel, visibleContextMaps);
 					}
 				}
-			} 
+			}
 		}
 		return visibleContextMaps;
 	}
